@@ -43,7 +43,6 @@ bool stopGame() {
   int j;
   for (j = 0; j < N; j++) {
     if(field[1][j] != 0) {
-    	
       return true;
     }
   }
@@ -122,126 +121,128 @@ void game()
 			  else if (gameWindow.key.code==Keyboard::Left) dx=-1;
 			  else if (gameWindow.key.code==Keyboard::Right) dx=1;
 			  else if (gameWindow.key.code==Keyboard::R) resetGame();
+			  else if (gameWindow.key.code == Keyboard::Escape) window.close();
 		}
 
 	if (Keyboard::isKeyPressed(Keyboard::Down)) delay=0.05;
-
-	//// <- Move -> ///
-	for ( int i=0; i<4; i++ )  
+	if(!stopGame())
 	{
-		oldFigure[i]=currentFigure[i];
-		currentFigure[i].x+=dx; 
-	}
-    if ( !check() ) 
-		for (int i=0; i<4; i++) 
-			currentFigure[i]=oldFigure[i];
-
-	//////Rotate//////
-	if (rotate)
-	{
-		Point p = currentFigure[1]; //center of rotation
-		for (int i=0;i<4;i++)
+		//// <- Move -> ///
+		for ( int i=0; i<4; i++ )  
 		{
-			int x = currentFigure[i].y - p.y;
-			int y = currentFigure[i].x - p.x;
-			currentFigure[i].x = p.x - x;
-			currentFigure[i].y = p.y + y;
+			oldFigure[i]=currentFigure[i];
+			currentFigure[i].x+=dx; 
 		}
-		if (!check()) 
-		   for (int i=0;i<4;i++) 
+	    if ( !check() ) 
+			for (int i=0; i<4; i++) 
 				currentFigure[i]=oldFigure[i];
-
-	}
-
-	///////Tick//////
-	if (timer>delay)
-	{
-	    for (int i=0;i<4;i++) 
-		{
-			oldFigure[i] = currentFigure[i]; 
-			currentFigure[i].y+=1; 
-		}
-
-		if (!check())
-		{
-			for( int i=0; i<4; i++ ) 
-				field[ oldFigure[i].y ][ oldFigure[i].x ] = colorNum;
-			colorNum = 1 + rand()%7;
-			int n = m;
-			m = rand()%7;
-			for( int i=0; i<4; i++ )
-			{
-			    nextFigure[i].x2 = figures[m][i] % 2;
-			    nextFigure[i].y2 = figures[m][i] / 2;
-			}
-			for ( int i=0; i<4; i++ )
-			{
-				currentFigure[i].x = figures[n][i] % 2;
-				currentFigure[i].y = figures[n][i] / 2;
-			}
-		}
-		timer=0;
-	}
-
-	///////check lines//////////
-    int k = M - 1;
-	for (int i = M-1 ; i>0; i-- )
-	{
-		int count=0;
-		for (int j=0;j<N;j++)
-		{
-		    if (field[i][j]) 
-				count++;
-		    field[k][j]=field[i][j];
-		    scores = scores + 100;
-		}
-		if (count<N) 
-			k--;
-	}
-
-    dx=0; rotate=0; delay=0.3;
-
-    /////////draw//////////
-    window.clear(Color::White);	
-    window.draw(background);
-		  
-	for ( int i=0; i<M; i++ )
-		for ( int j=0; j<N ;j++ )
-		   {
-	        	if ( field[i][j] == 0 ) 
-					continue;
-				Figure.setTextureRect(IntRect(field[i][j]*18,0,18,18));
-				Figure.setPosition(j*18,i*18);
-				Figure.move(28,31); //offset
-				window.draw(Figure);
-		   }
-
-	for ( int i=0; i<4; i++ )
-	{
-		Figure.setTextureRect( IntRect( colorNum * 18, 0, 18, 18 ) );
-		Figure.setPosition( currentFigure[i].x * 18, currentFigure[i].y * 18 );
-		Figure.move( 28, 31 ); //offset
-		window.draw( Figure );
-	}
-
-	for ( int i = 0; i<4; i++ ) // prediction block 
-	{
-		nextFigures.setTextureRect( IntRect( colorNum * 18, 0, 18, 18 ) );
-		nextFigures.setPosition( nextFigure[i].x2 * 18, nextFigure[i].y2 * 18 );
-		nextFigures.move( 260, 90 ); //offset
-		window.draw( nextFigures ); // draws prediction block the right of the screen 
-	}
 	
-	if (stopGame())
-	{
-		end_message.setPosition(50,400); 
-		restart_message.setPosition(80,440); 
-		window.draw(end_message);
-		window.draw(restart_message);
-	}	
-
-	window.draw( frame );
- 	window.display();
+		//////Rotate//////
+		if (rotate)
+		{
+			Point p = currentFigure[1]; //center of rotation
+			for (int i=0;i<4;i++)
+			{
+				int x = currentFigure[i].y - p.y;
+				int y = currentFigure[i].x - p.x;
+				currentFigure[i].x = p.x - x;
+				currentFigure[i].y = p.y + y;
+			}
+			if (!check()) 
+			   for (int i=0;i<4;i++) 
+					currentFigure[i]=oldFigure[i];
+	
+		}
+	
+		///////Tick//////
+		if (timer>delay)
+		{
+		    for (int i=0;i<4;i++) 
+			{
+				oldFigure[i] = currentFigure[i]; 
+				currentFigure[i].y+=1; 
+			}
+			if (!check())
+			{
+				for( int i=0; i<4; i++ ) 
+					field[ oldFigure[i].y ][ oldFigure[i].x ] = colorNum;
+				colorNum = 1 + rand()%7;
+				int n = m;
+				m = rand()%7;
+				for( int i=0; i<4; i++ )
+				{
+				    nextFigure[i].x2 = figures[m][i] % 2;
+					    nextFigure[i].y2 = figures[m][i] / 2;
+				}
+				for ( int i=0; i<4; i++ )
+				{
+					currentFigure[i].x = figures[n][i] % 2;
+					currentFigure[i].y = figures[n][i] / 2;
+				}
+			}
+			timer=0;
+		}
+	
+		///////check lines//////////
+	    int k = M - 1;
+		for (int i = M-1 ; i>0; i-- )
+		{
+			int count=0;
+			for (int j=0;j<N;j++)
+			{
+			    if (field[i][j]) 
+					count++;
+			    field[k][j]=field[i][j];
+			    scores = scores + 100;
+			}
+			if (count<N) 
+				k--;
+		}
+	
+	    dx=0; rotate=0; delay=0.3;
+	
+	    /////////draw//////////
+	    window.clear(Color::White);	
+	    window.draw(background);
+			  
+		for ( int i=0; i<M; i++ )
+			for ( int j=0; j<N ;j++ )
+			   {
+		        	if ( field[i][j] == 0 ) 
+						continue;
+					Figure.setTextureRect(IntRect(field[i][j]*18,0,18,18));
+					Figure.setPosition(j*18,i*18);
+					Figure.move(28,31); //offset
+					window.draw(Figure);
+			   }
+	
+		for ( int i=0; i<4; i++ )
+		{
+			Figure.setTextureRect( IntRect( colorNum * 18, 0, 18, 18 ) );
+			Figure.setPosition( currentFigure[i].x * 18, currentFigure[i].y * 18 );
+			Figure.move( 28, 31 ); //offset
+			window.draw( Figure );
+		}
+	
+		for ( int i = 0; i<4; i++ ) // prediction block 
+		{
+			nextFigures.setTextureRect( IntRect( colorNum * 18, 0, 18, 18 ) );
+			nextFigures.setPosition( nextFigure[i].x2 * 18, nextFigure[i].y2 * 18 );
+			nextFigures.move( 260, 90 ); //offset
+			window.draw( nextFigures ); // draws prediction block the right of the screen 
+		}
+		
+		if (stopGame())
+		{
+			end_message.setPosition(50,400); 
+			restart_message.setPosition(80,440); 
+			window.draw(end_message);
+			window.draw(restart_message);
+		}	
+	
+		window.draw( frame );
+	 	window.display();
+	}
 	}
 }
 
